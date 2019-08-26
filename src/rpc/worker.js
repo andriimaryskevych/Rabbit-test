@@ -27,9 +27,14 @@ amqp
                 const content = msg.content.toString();
 
                 console.log(content);
-                channel.publish('', replyTo, Buffer.from(content), {
-                    correlationId,
-                });
+
+                setTimeout(() => {
+                    console.log('Sending response');
+
+                    channel.publish('', replyTo, Buffer.from('Processed message: ' + content), {
+                        correlationId,
+                    });
+                }, 4000);
             },
             {
                 noAck: true

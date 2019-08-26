@@ -7,20 +7,18 @@ const {
 const performer = new RPCPerformer();
 
 performer.on(EVENT_READY, () => {
-    console.log('Ready event fired');
-
-    process.stdin.on('data', async (buffer) => {
+    process.stdin.on('data', async buffer => {
         let input = buffer.toString();
         input = input.substr(0, input.length - 1);
 
-        console.log('Inout received', input);
+        console.log('Input received', input);
         console.log('Sending request');
 
         try {
             const result = await performer.perform(input);
 
             console.log('Service success');
-            console.log('\nRequest:', input, '\nResponse:', result);
+            console.log('Request:', input, '\nResponse:', result);
         } catch (error) {
             console.log('Service error', error);
         }

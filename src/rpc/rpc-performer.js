@@ -30,7 +30,17 @@ class RPCPreformer extends EventEmitter {
             .then(channel => {
                 return channel
                     .consume(REPLY_QUEUE, msg => {
-                        console.log(msg);
+                        const { correlationId } = msg.properties;
+
+                        if (correlationId in this.requests) {
+                            const content = msg.content.toString();
+                            const { resolve, timeout } = this.requests[correlationId];
+
+                            clearTimeout(timeout)
+                            resolve(content);
+
+                            delete this.requests[correlationId];
+                        }
                     },
                     {
                         noAck: true
@@ -55,9 +65,14 @@ class RPCPreformer extends EventEmitter {
         });
 
         return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject(new Error('RMQ timeout error'));
+            }, 5000);
+
             this.requests[correlationId] = {
                 resolve,
-                reject
+                reject,
+                timeout,
             };
         })
     }
